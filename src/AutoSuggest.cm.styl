@@ -1,0 +1,29 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto');
+
+.auto-suggest
+  position relative
+
+  input
+    width 100%
+    font-family Roboto, sans-serif
+    font-size 24px
+
+  .suggestions
+    border 1px solid #f1f1f1
+    background-color white
+
+    position absolute
+    width 100%
+    z-index 1
+
+    .option
+      font-size 16px
+      text-align left
+
+      padding 5px
+      padding-left 10px
+
+      cursor pointer
+
+      &:focused
+        background-color #f1f1f1

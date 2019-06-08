@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-import './AutoSuggest.css';
+import style from './AutoSuggest.cm.styl';
+
+console.log('style', style)
 
 class AutoSuggest extends Component {
   constructor(props) {
@@ -121,7 +123,7 @@ class AutoSuggest extends Component {
     const inputRef = this.props.inputRef || null;
 
     return (
-      <div className="auto-suggest">
+      <div className={style.autoSuggest}>
         <form onSubmit={this.handleSubmit}>
           <input
             value={value}
@@ -135,15 +137,12 @@ class AutoSuggest extends Component {
         </form>
 
         {this.state.isCollapsed  ? null : (
-          <div className="suggestions">
+          <div className={style.suggestions}>
             {suggestions.map((option, index) => {
-              const status =
-                index === this.state.highlightedIndex ? 'focused' : null;
-
               return (
                 <div
                   key={option}
-                  className={`option ${status}`}
+                  className={style.option}
                   onClick={() => {
                     this.handleClick(option);
                   }}

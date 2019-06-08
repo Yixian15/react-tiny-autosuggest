@@ -1,12 +1,13 @@
 const path = require('path');
-const htmlWebpackPlugin = require('html-webpack-plugin');
+const nodeExternals = require('webpack-node-externals');
 
 module.exports = {
-  mode: 'development',
-  entry: './src/app.js',
+  mode: 'production',
+  entry: './src',
   output: {
     filename: 'bundle.js',
     path: path.resolve(__dirname, '../dist'),
+    libraryTarget: 'commonjs2'
   },
   module: {
     rules: [
@@ -18,15 +19,12 @@ module.exports = {
       {
         test: /\.css$/,
         use: ['style-loader', 'css-loader']
+      },
+      {
+        test: /\.cm\.styl$/,
+        loader: 'style-loader!css-loader?modules&camelCase&localIdentName=[local]-[hash:base64:5]!stylus-loader'
       }
     ]
   },
-  devServer: {
-    contentBase: './dist'
-  },
-  plugins: [
-    new htmlWebpackPlugin({
-      template: 'public/index.html'
-    })
-  ],
+  externals: [nodeExternals()]
 };
