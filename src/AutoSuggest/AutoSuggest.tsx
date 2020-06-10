@@ -1,17 +1,28 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import React from 'react';
 
 import style from './AutoSuggest.cm.styl';
 
-console.log('style', style)
+export interface Props {
+  suggestions: string[];
+  onSelect(value: string): void;
+  placeholder?: string;
+  inputRef?(): void;
+}
 
-class AutoSuggest extends Component {
-  constructor(props) {
+interface AutoSuggestState {
+  value: string,
+  valueBeforeUpDown: string;
+  highlightedIndex?: number;
+  isCollapsed: boolean
+}
+
+class AutoSuggest extends React.Component<Props, AutoSuggestState> {
+  constructor(props: Props) {
     super(props);
-    this.state = {
+    this.state= {
       value: '',
       valueBeforeUpDown: '',
-      highlightedIndex: null,
+      highlightedIndex: undefined,
       isCollapsed: true
     };
     this.handleChange = this.handleChange.bind(this);
@@ -24,11 +35,11 @@ class AutoSuggest extends Component {
     this.collapseSuggestions = this.collapseSuggestions.bind(this);
   }
 
-  handleChange(e) {
+  handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     this.setState({ value: e.target.value, valueBeforeUpDown: e.target.value });
   }
 
-  handleSubmit(e) {
+  handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
     const { onSelect } = this.props;
@@ -50,13 +61,13 @@ class AutoSuggest extends Component {
     });
   }
 
-  updateHighlightedIndex(direction) {
+  updateHighlightedIndex(direction: 1 | -1) {
     const suggestions = this.getSuggestions();
     if (suggestions.length === 0) {
       return;
     }
 
-    if (this.state.highlightedIndex === null) {
+    if (this.state.highlightedIndex === undefined) {
       // no suggestion selected
       if (direction === 1) {
         // select last suggestion
@@ -78,14 +89,14 @@ class AutoSuggest extends Component {
         });
       } else {
         this.setState({
-          highlightedIndex: null,
+          highlightedIndex: undefined,
           value: this.state.valueBeforeUpDown
         });
       }
     }
   }
 
-  handleKeyDown(e) {
+  handleKeyDown(e: React.KeyboardEvent) {
     switch (e.keyCode) {
       case 38:
         this.updateHighlightedIndex(-1);
@@ -98,7 +109,7 @@ class AutoSuggest extends Component {
     }
   }
 
-  handleClick(option) {
+  handleClick(option: string) {
     const { onSelect } = this.props;
 
     onSelect(option);
@@ -106,13 +117,13 @@ class AutoSuggest extends Component {
   }
 
   clearSuggestions() {
-    this.setState({ value: '', valueBeforeUpDown: '', highlightedIndex: null });
+    this.setState({ value: '', valueBeforeUpDown: '', highlightedIndex: undefined });
   }
 
   collapseSuggestions() {
     this.setState({
       isCollapsed: true,
-      highlightedIndex: null
+      highlightedIndex: undefined
     });
   }
 
@@ -136,7 +147,7 @@ class AutoSuggest extends Component {
           />
         </form>
 
-        {this.state.isCollapsed  ? null : (
+        {this.state.isCollapsed ? null : (
           <div className={style.suggestions}>
             {suggestions.map((option, index) => {
               return (
@@ -158,13 +169,6 @@ class AutoSuggest extends Component {
       </div>
     );
   }
-}
-
-AutoSuggest.propTypes = {
-  suggestions: PropTypes.arrayOf(PropTypes.string).isRequired,
-  onSelect: PropTypes.func,
-  placeholder: PropTypes.string,
-  inputRef: PropTypes.func
 }
 
 export default AutoSuggest;
