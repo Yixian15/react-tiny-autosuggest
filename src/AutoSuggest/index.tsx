@@ -1,14 +1,16 @@
 import React from 'react';
+import classnames from 'classnames';
 
 import { Option } from './types';
 
-import style from './index.cm.styl';
+import styles from './index.cm.styl';
 
 export interface Props {
+  value: string; // controlled componnents
   suggestions: Option[];
-  onSelect(value: string): void;
+  onUserInput?(value: string): void;
+  onSelect?(option: Option): void;
   placeholder?: string;
-  inputRef?(): void;
 }
 
 interface AutoSuggestState {
@@ -21,7 +23,7 @@ interface AutoSuggestState {
 class AutoSuggest extends React.Component<Props, AutoSuggestState> {
   constructor(props: Props) {
     super(props);
-    this.state= {
+    this.state = {
       value: '',
       valueBeforeUpDown: '',
       highlightedIndex: undefined,
@@ -38,15 +40,14 @@ class AutoSuggest extends React.Component<Props, AutoSuggestState> {
   }
 
   handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    this.setState({ value: e.target.value, valueBeforeUpDown: e.target.value });
+    const value = e.target.value;
+
+    this.props.onUserInput && this.props.onUserInput(value);
+    this.setState({ value, valueBeforeUpDown: value });
   }
 
-  handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-
-    const { onSelect } = this.props;
-    onSelect(this.state.value);
-
+  handleSubmit() {
+    this.props.onSelect && this.props.onSelect(this.state.value);
     this.clearSuggestions();
   }
 
@@ -55,12 +56,10 @@ class AutoSuggest extends React.Component<Props, AutoSuggestState> {
       return [];
     }
 
-    const value = this.state.valueBeforeUpDown.toUpperCase();
+    const value = this.state.valueBeforeUpDown;
     const { suggestions } = this.props;
 
-    return suggestions.filter(suggestion => {
-      return suggestion.toUpperCase().startsWith(value);
-    });
+    return suggestions.map((suggestion) => typeof suggestion === 'string' ? suggestion : suggestion.value).filter((suggestion) => suggestion.startsWith(value));
   }
 
   updateHighlightedIndex(direction: 1 | -1) {
@@ -99,13 +98,16 @@ class AutoSuggest extends React.Component<Props, AutoSuggestState> {
   }
 
   handleKeyDown(e: React.KeyboardEvent) {
-    switch (e.keyCode) {
-      case 38:
+    switch (e.key) {
+      case 'ArrowUp':
+        e.preventDefault()
         this.updateHighlightedIndex(-1);
         break;
-      case 40:
+      case 'ArrowDown':
         this.updateHighlightedIndex(1);
         break;
+      case 'Enter':
+        this.handleSubmit();
       default:
         return;
     }
@@ -114,7 +116,7 @@ class AutoSuggest extends React.Component<Props, AutoSuggestState> {
   handleClick(option: string) {
     const { onSelect } = this.props;
 
-    onSelect(option);
+    onSelect && onSelect(option);
     this.clearSuggestions();
   }
 
@@ -130,32 +132,31 @@ class AutoSuggest extends React.Component<Props, AutoSuggestState> {
   }
 
   render() {
+    const { placeholder } = this.props;
+    const { value, highlightedIndex } = this.state;
+
     const suggestions = this.getSuggestions();
-    const placeholder = this.props.placeholder || '';
-    const { value } = this.state;
-    const inputRef = this.props.inputRef || null;
 
     return (
-      <div className={style.autoSuggest}>
-        <form onSubmit={this.handleSubmit}>
-          <input
-            value={value}
-            placeholder={placeholder}
-            onChange={this.handleChange}
-            onKeyDown={this.handleKeyDown}
-            onFocus={() => this.setState({ isCollapsed: false })}
-            onBlur={this.collapseSuggestions}
-            ref={inputRef}
-          />
-        </form>
+      <div className={styles.autoSuggest}>
+        <input
+          value={value}
+          placeholder={placeholder}
+          onChange={this.handleChange}
+          onKeyDown={this.handleKeyDown}
+          onFocus={() => this.setState({ isCollapsed: false })}
+          onBlur={this.collapseSuggestions}
+        />
 
         {this.state.isCollapsed ? null : (
-          <div className={style.suggestions}>
+          <div className={styles.suggestions}>
             {suggestions.map((option, index) => {
+              const isHighlighted = index === highlightedIndex;
+
               return (
                 <div
                   key={option}
-                  className={style.option}
+                  className={classnames(styles.option, { [styles.highlighted]: isHighlighted })}
                   onClick={() => {
                     this.handleClick(option);
                   }}

@@ -1,6 +1,6 @@
 interface OptionObject {
   key: string;
-  value: any;
+  title: string;
   [key: string]: any;
 }
 
