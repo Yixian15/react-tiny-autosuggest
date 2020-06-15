@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import AutoSuggest from './AutoSuggest/AutoSuggest';
+import AutoSuggest from './AutoSuggest';
 
 const suggestions = ['C', 'C++', 'Python', 'Java', 'Javascript', 'PHP'];
 const handleSelect = (selection: string) => alert(`You selected ${selection}`);

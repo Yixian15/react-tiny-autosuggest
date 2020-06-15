@@ -1,9 +1,11 @@
 import React from 'react';
 
-import style from './AutoSuggest.cm.styl';
+import { Option } from './types';
+
+import style from './index.cm.styl';
 
 export interface Props {
-  suggestions: string[];
+  suggestions: Option[];
   onSelect(value: string): void;
   placeholder?: string;
   inputRef?(): void;
