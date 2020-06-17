@@ -1,20 +1,31 @@
 const path = require('path');
-const nodeExternals = require('webpack-node-externals');
+const htmlWebpackPlugin = require('html-webpack-plugin');
+const ForkTSCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
 
 module.exports = {
   mode: 'production',
-  entry: './src',
+  entry: './src/AutoSuggest/index.tsx',
   output: {
-    filename: 'bundle.js',
-    path: path.resolve(__dirname, '../dist'),
+    filename: 'main.js',
+    path: path.resolve(__dirname, './dist'),
     libraryTarget: 'commonjs2'
+  },
+  resolve: {
+    extensions: [
+      '.js', '.jsx', '.ts', '.tsx'
+    ]
   },
   module: {
     rules: [
       {
-        test: /\.js$/,
-        use: 'babel-loader',
-        exclude: /node_modules/
+        test: /\.(j|t)sx?$/,
+        exclude: /node_modules/,
+        use: {
+          loader: "ts-loader",
+          options: {
+            transpileOnly: true
+          }
+        }
       },
       {
         test: /\.css$/,
@@ -26,5 +37,7 @@ module.exports = {
       }
     ]
   },
-  externals: [nodeExternals()]
+  plugins: [
+    new ForkTSCheckerWebpackPlugin(),
+  ],
 };

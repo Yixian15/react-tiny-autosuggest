@@ -1,21 +1,22 @@
 {
   "name": "react-tiny-autosuggest",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "description": "react tiny auto suggest component",
-  "main": "dist/bundle.js",
+  "main": "dist/main.js",
   "files": [
     "dist"
   ],
   "scripts": {
     "start": "webpack-dev-server --config webpack.dev.config.js",
     "dev": "webpack-dev-server --config webpack.dev.config.js",
-    "build": "webpack --config webpack.prod.config.js"
+    "build": "rm -rf dist && webpack --config webpack.prod.config.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "prop-types": "15.6.0",
+    "@types/classnames": "2.2.10",
+    "classnames": "2.2.6",
     "react": "16.7.0",
     "react-dom": "16.7.0"
   },
@@ -23,15 +24,20 @@
     "@babel/core": "7.2.2",
     "@babel/preset-env": "7.2.3",
     "@babel/preset-react": "7.0.0",
+    "@types/react": "16.9.36",
+    "@types/react-dom": "16.9.8",
+    "@types/webpack": "4.41.17",
     "babel-loader": "8.0.5",
     "css-loader": "0.28.9",
+    "fork-ts-checker-webpack-plugin": "4.1.6",
     "html-webpack-plugin": "3.2.0",
     "style-loader": "0.19.1",
     "stylus": "0.54.5",
     "stylus-loader": "3.0.2",
+    "ts-loader": "7.0.5",
+    "typescript": "3.9.5",
     "webpack": "4.29.0",
     "webpack-cli": "3.2.1",
-    "webpack-dev-server": "3.1.14",
-    "webpack-node-externals": "1.6.0"
+    "webpack-dev-server": "3.11.0"
   }
 }

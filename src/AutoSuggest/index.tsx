@@ -1,17 +1,32 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import React from 'react';
+import classnames from 'classnames';
 
-import style from './AutoSuggest.cm.styl';
+import { Option } from './types';
 
-console.log('style', style)
+import styles from './index.cm.styl';
 
-class AutoSuggest extends Component {
-  constructor(props) {
+export interface Props {
+  value?: string; // controlled componnents
+  suggestions: Option[];
+  onUserInput?(value: string): void;
+  onSelect?(option: Option): void;
+  placeholder?: string;
+}
+
+interface AutoSuggestState {
+  value: string,
+  valueBeforeUpDown: string;
+  highlightedIndex?: number;
+  isCollapsed: boolean
+}
+
+class AutoSuggest extends React.Component<Props, AutoSuggestState> {
+  constructor(props: Props) {
     super(props);
     this.state = {
       value: '',
       valueBeforeUpDown: '',
-      highlightedIndex: null,
+      highlightedIndex: undefined,
       isCollapsed: true
     };
     this.handleChange = this.handleChange.bind(this);
@@ -24,16 +39,15 @@ class AutoSuggest extends Component {
     this.collapseSuggestions = this.collapseSuggestions.bind(this);
   }
 
-  handleChange(e) {
-    this.setState({ value: e.target.value, valueBeforeUpDown: e.target.value });
+  handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const value = e.target.value;
+
+    this.props.onUserInput && this.props.onUserInput(value);
+    this.setState({ value, valueBeforeUpDown: value });
   }
 
-  handleSubmit(e) {
-    e.preventDefault();
-
-    const { onSelect } = this.props;
-    onSelect(this.state.value);
-
+  handleSubmit() {
+    this.props.onSelect && this.props.onSelect(this.state.value);
     this.clearSuggestions();
   }
 
@@ -42,21 +56,19 @@ class AutoSuggest extends Component {
       return [];
     }
 
-    const value = this.state.valueBeforeUpDown.toUpperCase();
+    const value = this.state.valueBeforeUpDown;
     const { suggestions } = this.props;
 
-    return suggestions.filter(suggestion => {
-      return suggestion.toUpperCase().startsWith(value);
-    });
+    return suggestions.map((suggestion) => typeof suggestion === 'string' ? suggestion : suggestion.value).filter((suggestion) => suggestion.startsWith(value));
   }
 
-  updateHighlightedIndex(direction) {
+  updateHighlightedIndex(direction: 1 | -1) {
     const suggestions = this.getSuggestions();
     if (suggestions.length === 0) {
       return;
     }
 
-    if (this.state.highlightedIndex === null) {
+    if (this.state.highlightedIndex === undefined) {
       // no suggestion selected
       if (direction === 1) {
         // select last suggestion
@@ -78,71 +90,73 @@ class AutoSuggest extends Component {
         });
       } else {
         this.setState({
-          highlightedIndex: null,
+          highlightedIndex: undefined,
           value: this.state.valueBeforeUpDown
         });
       }
     }
   }
 
-  handleKeyDown(e) {
-    switch (e.keyCode) {
-      case 38:
+  handleKeyDown(e: React.KeyboardEvent) {
+    switch (e.key) {
+      case 'ArrowUp':
+        e.preventDefault()
         this.updateHighlightedIndex(-1);
         break;
-      case 40:
+      case 'ArrowDown':
         this.updateHighlightedIndex(1);
         break;
+      case 'Enter':
+        this.handleSubmit();
       default:
         return;
     }
   }
 
-  handleClick(option) {
+  handleClick(option: string) {
     const { onSelect } = this.props;
 
-    onSelect(option);
+    onSelect && onSelect(option);
     this.clearSuggestions();
   }
 
   clearSuggestions() {
-    this.setState({ value: '', valueBeforeUpDown: '', highlightedIndex: null });
+    this.setState({ value: '', valueBeforeUpDown: '', highlightedIndex: undefined });
   }
 
   collapseSuggestions() {
     this.setState({
       isCollapsed: true,
-      highlightedIndex: null
+      highlightedIndex: undefined
     });
   }
 
   render() {
+    const { placeholder } = this.props;
+    const { value, highlightedIndex } = this.state;
+
     const suggestions = this.getSuggestions();
-    const placeholder = this.props.placeholder || '';
-    const { value } = this.state;
-    const inputRef = this.props.inputRef || null;
 
     return (
-      <div className={style.autoSuggest}>
-        <form onSubmit={this.handleSubmit}>
-          <input
-            value={value}
-            placeholder={placeholder}
-            onChange={this.handleChange}
-            onKeyDown={this.handleKeyDown}
-            onFocus={() => this.setState({ isCollapsed: false })}
-            onBlur={this.collapseSuggestions}
-            ref={inputRef}
-          />
-        </form>
+      <div className={styles.autoSuggest}>
+        <input
+          value={value}
+          placeholder={placeholder}
+          onChange={this.handleChange}
+          onKeyDown={this.handleKeyDown}
+          onFocus={() => this.setState({ isCollapsed: false })}
+          onBlur={this.collapseSuggestions}
+        />
 
-        {this.state.isCollapsed  ? null : (
-          <div className={style.suggestions}>
+        {this.state.isCollapsed ? null : (
+          <div className={styles.suggestions}>
             {suggestions.map((option, index) => {
+              const isHighlighted = index === highlightedIndex;
+
               return (
                 <div
                   key={option}
-                  className={style.option}
+                  className={classnames(styles.option, { [styles.highlighted]: isHighlighted })}
                   onClick={() => {
                     this.handleClick(option);
                   }}
@@ -158,13 +172,6 @@ class AutoSuggest extends Component {
       </div>
     );
   }
-}
-
-AutoSuggest.propTypes = {
-  suggestions: PropTypes.arrayOf(PropTypes.string).isRequired,
-  onSelect: PropTypes.func,
-  placeholder: PropTypes.string,
-  inputRef: PropTypes.func
 }
 
 export default AutoSuggest;
