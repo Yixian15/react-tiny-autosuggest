@@ -2,19 +2,20 @@
   "name": "react-tiny-autosuggest",
   "version": "1.0.1",
   "description": "react tiny auto suggest component",
-  "main": "dist/bundle.js",
+  "main": "dist/main.js",
   "files": [
     "dist"
   ],
   "scripts": {
     "start": "webpack-dev-server --config webpack.dev.config.js",
     "dev": "webpack-dev-server --config webpack.dev.config.js",
-    "build": "webpack --config webpack.prod.config.js"
+    "build": "rm -rf dist && webpack --config webpack.prod.config.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/classnames": "2.2.10",
     "classnames": "2.2.6",
     "react": "16.7.0",
     "react-dom": "16.7.0"
@@ -37,7 +38,6 @@
     "typescript": "3.9.5",
     "webpack": "4.29.0",
     "webpack-cli": "3.2.1",
-    "webpack-dev-server": "3.11.0",
-    "webpack-node-externals": "1.6.0"
+    "webpack-dev-server": "3.11.0"
   }
 }

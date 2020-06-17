@@ -6,7 +6,7 @@ import { Option } from './types';
 import styles from './index.cm.styl';
 
 export interface Props {
-  value: string; // controlled componnents
+  value?: string; // controlled componnents
   suggestions: Option[];
   onUserInput?(value: string): void;
   onSelect?(option: Option): void;
